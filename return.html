@@ -123,6 +123,118 @@
             height: 300px;
             object-fit: cover;
             display: block;
+            cursor: pointer;
+        }
+
+        /* Lightbox Styles */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.3);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.5);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            background: rgba(197, 148, 26, 0.8);
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 50px;
+            color: white;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.5);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+            user-select: none;
+        }
+
+        .lightbox-nav:hover {
+            background: rgba(197, 148, 26, 0.8);
+        }
+
+        .lightbox-prev {
+            left: 30px;
+        }
+
+        .lightbox-next {
+            right: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .lightbox-close {
+                top: 10px;
+                right: 10px;
+                font-size: 30px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .lightbox-nav {
+                font-size: 30px;
+                width: 45px;
+                height: 45px;
+            }
+
+            .lightbox-prev {
+                left: 10px;
+            }
+
+            .lightbox-next {
+                right: 10px;
+            }
         }
 
         .video-section {
@@ -237,13 +349,13 @@
             </p>
 
             <p class="article-text">
-                At the moment when prophecy is being fulfilled,<br/>
-                a Chinese director, after five years of devoted effort,<br/>
-                seeking the origins of ancient civilizations and faith,<br/>
-                linking the historical threads between China and Israel,<br/>
-                tracing the footsteps of the Gospel’s journey to the East,<br/>
-                bearing witness to God’s love for China,<br/>
-                and revealing Israel’s calling <br/>
+                At the moment when prophecy is being fulfilled,
+                a Chinese director, after five years of devoted effort,
+                seeking the origins of ancient civilizations and faith,
+                linking the historical threads between China and Israel,
+                tracing the footsteps of the Gospel’s journey to the East,
+                bearing witness to God’s love for China,
+                and revealing Israel’s calling
                 and mission in the plan of salvation.
             </p>
 
@@ -292,5 +404,89 @@
     <footer>
         <p>With love and gratitude ❤️</p>
     </footer>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <span class="lightbox-nav lightbox-prev" id="lightbox-prev">&#10094;</span>
+        <div class="lightbox-content">
+            <img src="" alt="" id="lightbox-img">
+        </div>
+        <span class="lightbox-nav lightbox-next" id="lightbox-next">&#10095;</span>
+    </div>
+
+    <script>
+        // Get all gallery images
+        const galleryImages = document.querySelectorAll('.gallery-item img');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const closeBtn = document.getElementById('lightbox-close');
+        const prevBtn = document.getElementById('lightbox-prev');
+        const nextBtn = document.getElementById('lightbox-next');
+        
+        let currentIndex = 0;
+        let allImages = [];
+
+        // Convert NodeList to array and store all image sources
+        galleryImages.forEach((img, index) => {
+            allImages.push(img.src);
+            
+            // Add click event to each image
+            img.addEventListener('click', () => {
+                currentIndex = index;
+                openLightbox(img.src);
+            });
+        });
+
+        // Open lightbox
+        function openLightbox(src) {
+            lightbox.classList.add('active');
+            lightboxImg.src = src;
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        // Close lightbox
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Show previous image
+        function showPrevImage() {
+            currentIndex = (currentIndex - 1 + allImages.length) % allImages.length;
+            lightboxImg.src = allImages[currentIndex];
+        }
+
+        // Show next image
+        function showNextImage() {
+            currentIndex = (currentIndex + 1) % allImages.length;
+            lightboxImg.src = allImages[currentIndex];
+        }
+
+        // Event listeners
+        closeBtn.addEventListener('click', closeLightbox);
+        prevBtn.addEventListener('click', showPrevImage);
+        nextBtn.addEventListener('click', showNextImage);
+
+        // Close lightbox when clicking outside the image
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            
+            if (e.key === 'Escape') {
+                closeLightbox();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevImage();
+            } else if (e.key === 'ArrowRight') {
+                showNextImage();
+            }
+        });
+    </script>
 </body>
 </html>
